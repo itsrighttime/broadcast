@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{t "welcome_title"}}</title>
+    <link rel="stylesheet" href="{{cssPath}}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>{{t "welcome_heading"}}</h1>
+        <p>{{t "product_of"}}</p>
+      </div>
+      <div class="content">
+        <p>{{t "greeting" name}}</p>
+        <p>{{t "welcome_message"}}</p>
+        <p class="highlight">{{t "user_id"}}: <strong>{{userId}}</strong></p>
+        <p>{{t "password_instructions"}}</p>
+        <a href="{{password_link}}" class="btn">{{t "view_password"}}</a>
+        <p>
+          {{t "link_note"}} <br /><a href="{{password_link}}"
+            >{{password_link}}</a
+          >
+        </p>
+      </div>
+      <div class="footer">
+        <p>{{t "footer_message"}}</p>
+      </div>
+    </div>
+  </body>
+</html>

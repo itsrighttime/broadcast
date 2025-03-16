@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{t "security_alert_title"}}</title>
+    <link rel="stylesheet" href="{{cssPath}}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>{{t "security_alert_heading"}}</h1>
+        <p>{{t "product_of"}}</p>
+      </div>
+      <div class="content">
+        <p>{{t "greeting" name}}</p>
+        <p>{{t "security_alert_message"}}</p>
+        <p class="highlight">
+          {{t "device_info"}}: <strong>{{device}}</strong>
+        </p>
+        <p>{{t "security_action_required"}}</p>
+        <a href="{{secure_link}}" class="btn">{{t "secure_account"}}</a>
+      </div>
+      <div class="footer">
+        <p>{{t "footer_message"}}</p>
+      </div>
+    </div>
+  </body>
+</html>
