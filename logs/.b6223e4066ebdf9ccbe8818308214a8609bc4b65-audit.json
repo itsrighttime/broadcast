@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 15
+    },
+    "auditLog": "E:\\itsRIGHTtime\\broadcast\\logs\\.b6223e4066ebdf9ccbe8818308214a8609bc4b65-audit.json",
+    "files": [
+        {
+            "date": 1742132942232,
+            "name": "E:\\itsRIGHTtime\\broadcast\\logs\\app_16-03-2025.log",
+            "hash": "fab0b938626b7b23e0ba2e2931b307b25e68c448eb6a9f86bbe5db51670be911"
+        }
+    ],
+    "hashType": "sha256"
+}

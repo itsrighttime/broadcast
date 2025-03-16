@@ -1,0 +1,46 @@
+name: Node.js Package Deploy
+
+on:
+  push:
+    branches: [package]
+  pull_request:
+    branches: [package]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+
+      - name: Bump Version and Publish
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if npm view @itsrighttime/socket-io@$CURRENT_VERSION --registry=https://npm.pkg.github.com/ 2>/dev/null; then
+            echo "Version $CURRENT_VERSION already exists. Bumping patch version..."
+            npm version patch
+          else
+            echo "Version $CURRENT_VERSION does not exist."
+          fi
+          git push origin package --follow-tags
+          npm publish --registry=https://npm.pkg.github.com/
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_ENV }}

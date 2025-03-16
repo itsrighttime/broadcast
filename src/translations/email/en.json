@@ -1,0 +1,35 @@
+{
+  "otp_title": "Your OTP Code from letsSecure",
+  "otp_heading": "Your One-Time Password",
+  "otp_message": "Use the OTP below to complete your login or verification process.",
+  "otp_code": "Your OTP Code",
+  "otp_expiry": "This code will expire in 10 minutes.",
+
+  "reminder_title": "Upcoming Event Reminder",
+  "reminder_heading": "Don't Miss Your Event!",
+  "reminder_message": "This is a friendly reminder for your upcoming event.",
+  "event_details": "Event Details",
+  "reminder_note": "Make sure to mark your calendar!",
+
+  "promo_title": "Exclusive Promotion from letsSecure",
+  "promo_heading": "Special Offer Just for You!",
+  "promo_message": "Enjoy exclusive deals with letsSecure. Click below to explore!",
+  "shop_now": "Shop Now",
+
+  "password_reset_title": "Reset Your Password",
+  "password_reset_heading": "Password Reset Request",
+  "password_reset_message": "Click the button below to reset your password.",
+  "reset_password": "Reset Password",
+
+  "account_verify_title": "Verify Your Account",
+  "account_verify_heading": "Verify Your letsSecure Account",
+  "account_verify_message": "Please verify your email address to activate your account.",
+  "verify_account": "Verify Account",
+
+  "security_alert_title": "Security Alert from letsSecure",
+  "security_alert_heading": "New Device Login Detected!",
+  "security_alert_message": "A new login was detected on your account.",
+  "device_info": "Device Info",
+  "security_action_required": "If this wasn't you, please secure your account immediately.",
+  "secure_account": "Secure My Account"
+}

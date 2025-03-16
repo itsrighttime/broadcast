@@ -1,0 +1,26 @@
+# Source files that shouldn’t be published
+tests/
+docs/
+examples/
+scripts/
+.github/
+
+
+# Ignore development dependencies
+node_modules/
+*.log
+package-lock.json
+
+# Configurations
+*.code-workspace
+*.md
+.npmignore
+.gitignore
+
+# Ignore build configurations
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+.env*
