@@ -1,6 +1,11 @@
 import dotenv from "dotenv";
 
 dotenv.config();
+/**
+ * 
+ * This file is extra just for reference 
+ * 
+ */
 
 export const emailConfig = {
   SMTP_HOST: process.env.SMTP_HOST || "smtp.example.com",
