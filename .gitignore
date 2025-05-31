@@ -26,3 +26,7 @@ Thumbs.db
 *.cache
 *.swp
 
+
+.npmignore
+.gitignore
+.npmrc

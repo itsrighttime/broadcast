@@ -16,6 +16,7 @@ package-lock.json
 *.md
 .npmignore
 .gitignore
+.npmrc
 
 # Ignore build configurations
 .vscode/
