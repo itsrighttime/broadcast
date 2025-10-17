@@ -1,3 +1,4 @@
+// import { sendMail } from "./utils/test.js";
 
 export {
   getEmailTemplateInfo,
@@ -6,3 +7,4 @@ export {
 
 export { EmailService } from "./broadcast/emailService.js";
 
+// await sendMail();

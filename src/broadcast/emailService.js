@@ -7,7 +7,7 @@ import { getLocalizedTemplate } from "./helper/load-template.helper.js";
 import { createLoggerManager } from "@itsrighttime/utils";
 import { serviceName } from "../utils/serviceName.js";
 
-export const myLogger = createLoggerManager(serviceName);
+export const myLogger = createLoggerManager(serviceName).logger;
 
 /**
  * EmailService class for sending emails with configurable SMTP settings.
@@ -20,16 +20,33 @@ export const myLogger = createLoggerManager(serviceName);
  * @param {string} config.pass - SMTP password.
  * @param {string} config.fromName - Default sender name.
  * @param {string} config.fromEmail - Default sender email address.
+ * @param {string} config.logger - Default sender email address.
+ * @param {string} config.debug - Default sender email address.
  *
  * Use it
  */
 export class EmailService {
-  constructor({ host, port, secure, user, pass, fromName, fromEmail }) {
+  constructor({
+    host = "mail.itsrighttime.group",
+    port = 465,
+    secure = true,
+    user,
+    pass,
+    fromName = "itsRIGHTtime",
+    fromEmail = "no-reply@itsrighttime.group",
+    logger = false,
+    debug = false,
+  }) {
     this.transporter = nodemailer.createTransport({
       host,
       port,
-      secure,
+      secure, // true for 465, false for 587
       auth: { user, pass },
+      tls: {
+        rejectUnauthorized: false, // allows SSL certs to work
+      },
+      logger: logger,
+      debug: debug,
     });
 
     this.fromName = fromName;
@@ -60,6 +77,7 @@ export class EmailService {
     subject,
     text,
     html,
+    css = "",
     replyTo,
     attachments = [],
     priority = "normal",
@@ -69,16 +87,47 @@ export class EmailService {
     language = "en",
   }) {
     try {
-      let finalHtml = html;
+      // Check if CSS is provided without HTML
+      if (css && !html) {
+        throw new Error("CSS cannot be used without HTML content.");
+      }
+
+      // Count how many content options are provided
+      const contentOptions = [
+        text ? 1 : 0,
+        html ? 1 : 0 || css ? 1 : 0,
+        templateName ? 1 : 0,
+      ];
+      const contentCount = contentOptions.reduce((a, b) => a + b, 0);
+
+      if (contentCount === 0) {
+        throw new Error(
+          "No email content provided. Provide either text, html+css, or templateName."
+        );
+      }
+      if (contentCount > 1) {
+        throw new Error(
+          "Only one email content type should be provided: text, html+css, or templateName."
+        );
+      }
+
+      let finalHtml;
+
       if (templateName) {
+        // Template mode
         const templateHtml = getLocalizedTemplate(
           templateName,
           variables,
           language
         );
         const cssPath = path.join(__dirname, "templates", "style.css");
-        const css = fs.readFileSync(cssPath, "utf8");
-        finalHtml = juice.inlineContent(templateHtml, css);
+        const templateCss = fs.existsSync(cssPath)
+          ? fs.readFileSync(cssPath, "utf8")
+          : "";
+        finalHtml = juice.inlineContent(templateHtml, templateCss);
+      } else if (html) {
+        // HTML + CSS mode
+        finalHtml = css ? juice.inlineContent(html, css) : html;
       }
 
       const mailOptions = {
