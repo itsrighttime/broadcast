@@ -1,6 +1,6 @@
 {
   "name": "@itsrighttime/broadcast",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "This error-handling package provides a robust structure to handle application errors gracefully.",
   "main": "src/index.js",
   "type": "module",
