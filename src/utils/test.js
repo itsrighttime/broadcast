@@ -1,4 +1,5 @@
 import { EmailService } from "../broadcast/emailService.js";
+import { loadFile } from "./loadFile.js";
 
 // Create a reusable async function to send email
 export async function sendMail() {
@@ -13,11 +14,18 @@ export async function sendMail() {
       fromEmail: "no-reply@itsrighttime.group",
     });
 
+    const htmlContent = await loadFile(
+      "./src/utils/emailContent/html/registration.html"
+    );
+    const cssContent = await loadFile(
+      "./src/utils/emailContent/css/registration.css"
+    );
+
     const result = await emailService.sendEmail({
       to: "danishan089@gmail.com",
       subject: "Test Email",
-      text: "Hello! This is a test email from Node.js",
-      html: "<p>Hello! This is a <b>test email</b> from Node.js</p>",
+      html: htmlContent,
+      css: cssContent,
     });
 
     console.log("Email sent successfully:", result.messageId);
