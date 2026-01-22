@@ -3,9 +3,13 @@ import schedule from "node-schedule";
 import juice from "juice";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { getLocalizedTemplate } from "./helper/load-template.helper.js";
 import { createLoggerManager } from "@itsrighttime/utils";
 import { serviceName } from "../utils/serviceName.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const myLogger = createLoggerManager(serviceName).logger;
 
