@@ -2,7 +2,11 @@
 
 ## Overview
 
-`@itsrighttime/broadcast` is a robust email service package designed for sending emails with advanced features such as attachments, priority levels, CC/BCC, templating support, and custom HTML/CSS emails. It provides a structured way to send and schedule emails using **Nodemailer** while ensuring ease of integration.
+`@itsrighttime/broadcast` is a robust email service package designed for sending emails with advanced features such as attachments, priority levels, CC/BCC, templating support, and custom HTML/CSS emails.
+
+It also supports **email preview mode**, allowing developers to **generate, inspect, and save the final rendered email output (HTML)** without sending it.
+
+The service is built on **Nodemailer** and designed for clean integration into modern **ESM (ES6)** Node.js applications.
 
 ## Installation
 
@@ -40,54 +44,237 @@ const emailService = new EmailService({
 | `logger`    | `boolean` | `false`                         | No       | Enable internal Nodemailer logging.                 |
 | `debug`     | `boolean` | `false`                         | No       | Enable debug mode for SMTP connection.              |
 
-### Notes:
+### Notes
 
-1. **SSL/TLS**:
+1. **SSL/TLS**
+   - Use `secure: true` for port `465`
+   - Use `secure: false` for port `587`
 
-   - Use `secure: true` for port `465` (SSL).
-   - Use `secure: false` for port `587` (TLS/submission).
+2. **TLS Options**
+   - `rejectUnauthorized: false` is enabled by default to allow self-signed or Let’s Encrypt certificates.
 
-2. **TLS Options**:
-
-   - `rejectUnauthorized: false` is applied by default to allow self-signed or Let’s Encrypt certificates.
-
-3. **Logging**:
-
-   - `logger` and `debug` are optional and useful for debugging SMTP connection issues.
+3. **Logging**
+   - `logger` and `debug` are useful for diagnosing SMTP issues.
 
 ## `sendEmail` Props
 
-| Prop                 | Type                          | Default    | Required      | Rules / Notes                                                                                            |
-| -------------------- | ----------------------------- | ---------- | ------------- | -------------------------------------------------------------------------------------------------------- |
-| `to`                 | `string \| string[]`          | —          | Yes           | Recipient email(s).                                                                                      |
-| `cc`                 | `string \| string[]`          | —          | No            | CC recipients.                                                                                           |
-| `bcc`                | `string \| string[]`          | —          | No            | BCC recipients.                                                                                          |
-| `subject`            | `string`                      | —          | Yes           | Subject of the email.                                                                                    |
-| `text`               | `string`                      | —          | Conditionally | Only one content type can be used: `text`, `html+css`, or `templateName`.                                |
-| `html`               | `string`                      | —          | Conditionally | Must be provided if `css` is used.                                                                       |
-| `css`                | `string`                      | —          | No            | Inline CSS for `html` content. Cannot be used alone.                                                     |
-| `templateName`       | `string`                      | —          | Conditionally | Name of a predefined template. Only one content type allowed at a time.                                  |
-| `variables`          | `object`                      | `{}`       | No            | Template variables for `templateName`. Ignored if `text` or `html` is used.                              |
-| `language`           | `string`                      | `"en"`     | No            | Template language. Ignored if `text` or `html` is used.                                                  |
-| `replyTo`            | `string`                      | —          | No            | Reply-to email address.                                                                                  |
-| `attachments`        | `Array<Object>`               | `[]`       | No            | Array of attachments. Each attachment object: `{ filename: string, path: string, contentType?: string }` |
-| `priority`           | `"high" \| "normal" \| "low"` | `"normal"` | No            | Email priority.                                                                                          |
-| `requestReadReceipt` | `boolean`                     | `false`    | No            | Request a read receipt from recipient.                                                                   |
+| Prop                 | Type                          | Default    | Required      | Rules / Notes                                                   |
+| -------------------- | ----------------------------- | ---------- | ------------- | --------------------------------------------------------------- |
+| `to`                 | `string \| string[]`          | —          | Yes           | Recipient email(s).                                             |
+| `cc`                 | `string \| string[]`          | —          | No            | CC recipients.                                                  |
+| `bcc`                | `string \| string[]`          | —          | No            | BCC recipients.                                                 |
+| `subject`            | `string`                      | —          | Yes           | Subject of the email.                                           |
+| `text`               | `string`                      | —          | Conditionally | Plain text email body.                                          |
+| `html`               | `string`                      | —          | Conditionally | HTML email body. Required if `css` is provided.                 |
+| `css`                | `string`                      | —          | No            | Inline CSS for `html`. Cannot be used alone.                    |
+| `templateName`       | `string`                      | —          | Conditionally | Name of a predefined template.                                  |
+| `variables`          | `object`                      | `{}`       | No            | Template variables. Used only with `templateName`.              |
+| `language`           | `string`                      | `"en"`     | No            | Template language.                                              |
+| `replyTo`            | `string`                      | —          | No            | Reply-to email address.                                         |
+| `attachments`        | `Array<Object>`               | `[]`       | No            | Attachments: `{ filename, path, contentType? }`.                |
+| `priority`           | `"high" \| "normal" \| "low"` | `"normal"` | No            | Email priority.                                                 |
+| `requestReadReceipt` | `boolean`                     | `false`    | No            | Request read receipt from recipient.                            |
+| `previewOnly`        | `boolean`                     | `false`    | No            | **Generate email output without sending**.                      |
+| `savePreview`        | `boolean`                     | `false`    | No            | Save rendered HTML email to disk when `previewOnly` is enabled. |
 
-### Notes on Content Validation
+## Return Value of `sendEmail`
 
-- **Mutually exclusive** content types: only **one** of the following should be present:
+The `sendEmail` method returns **different response objects** depending on whether the email is **sent** or **previewed**.
 
+### 1 Normal Send Mode (default)
+
+When `previewOnly` is **false** (default), the email is sent using Nodemailer and the function returns the **Nodemailer `SendMailResult`**.
+
+#### Return Type
+
+```ts
+Promise<{
+  accepted: string[];
+  rejected: string[];
+  envelopeTime: number;
+  messageTime: number;
+  messageSize: number;
+  response: string;
+  envelope: {
+    from: string;
+    to: string[];
+  };
+  messageId: string;
+}>;
+```
+
+#### Example
+
+```javascript
+const result = await emailService.sendEmail({
+  to: "user@example.com",
+  subject: "Welcome",
+  text: "Hello!",
+});
+
+console.log(result.messageId);
+```
+
+#### Notes
+
+- This object comes **directly from Nodemailer**
+- Properties may vary slightly by transport
+
+### 2 Preview Mode (`previewOnly: true`)
+
+When `previewOnly` is **true**, the email is **not sent**.
+Instead, the function returns the **fully rendered email output**.
+
+#### Return Type
+
+```ts
+Promise<{
+  preview: true;
+  previewPath: string | null;
+  email: {
+    from: string;
+    to: string | string[];
+    cc?: string | string[];
+    bcc?: string | string[];
+    subject: string;
+    text?: string;
+    html?: string;
+  };
+}>;
+```
+
+### Example: Preview Without Saving
+
+```javascript
+const result = await emailService.sendEmail({
+  to: "test@example.com",
+  subject: "Welcome Email",
+  templateName: "welcome",
+  previewOnly: true,
+});
+
+console.log(result.preview); // true
+console.log(result.email.html); // rendered HTML
+```
+
+### Example: Preview With HTML Saved
+
+```javascript
+const result = await emailService.sendEmail({
+  to: "test@example.com",
+  subject: "OTP Email",
+  templateName: "otp",
+  variables: { otp: "123456" },
+  previewOnly: true,
+  savePreview: true,
+});
+
+console.log(result.previewPath);
+// /project-root/email-previews/otp-2026-01-22T10-30-00.html
+```
+
+### 3 Return Value Summary
+
+| Mode           | `previewOnly`          | Email Sent | Return Value                |
+| -------------- | ---------------------- | ---------- | --------------------------- |
+| Normal send    | `false`                | Yes        | Nodemailer `SendMailResult` |
+| Preview        | `true`                 | No         | Rendered email object       |
+| Preview + Save | `true` + `savePreview` | No         | Rendered email + file path  |
+
+### Important Notes
+
+- `previewOnly` **always bypasses SMTP sending**
+- `savePreview` has **no effect** unless `previewOnly` is `true`
+- `previewPath` will be `null` if `savePreview` is disabled or content is text-only
+
+## TypeScript-Friendly Union Type (Optional)
+
+```ts
+type SendEmailResult =
+  | Nodemailer.SendMailResult
+  | {
+      preview: true;
+      previewPath: string | null;
+      email: {
+        from: string;
+        to: string | string[];
+        cc?: string | string[];
+        bcc?: string | string[];
+        subject: string;
+        text?: string;
+        html?: string;
+      };
+    };
+```
+
+## Content Validation Rules
+
+- Exactly **one** content type must be used:
   1. `text`
-  2. `html` (with optional `css`)
+  2. `html` (+ optional `css`)
   3. `templateName`
 
 - If `css` is provided, `html` **must** be present.
-- If validation fails, the service throws an error with a descriptive message.
+
+- Validation errors throw descriptive exceptions.
+
+## Email Preview & HTML Export (New Feature)
+
+### What is Preview Mode?
+
+Preview mode allows you to:
+
+- Generate the **exact final email output**
+- Inspect the HTML/text programmatically
+- Save the rendered email as a `.html` file
+- **Avoid sending the email**
+
+### Preview Storage Location
+
+When `savePreview: true` is used:
+
+- HTML files are saved to the **project root**
+- Directory name: `email-previews/`
+- Path resolution uses `process.cwd()` (ESM-safe)
+
+```
+project-root/
+ ├─ email-previews/
+ │   ├─ welcome-2026-01-22T10-30-00.html
+```
+
+### Example: Preview Only (No Send)
+
+```javascript
+const preview = await emailService.sendEmail({
+  to: "test@example.com",
+  subject: "Welcome Email",
+  templateName: "welcome",
+  variables: { name: "Danishan" },
+  previewOnly: true,
+});
+
+console.log(preview.email.html);
+```
+
+### Example: Preview + Save HTML File
+
+```javascript
+const preview = await emailService.sendEmail({
+  to: "test@example.com",
+  subject: "OTP Email",
+  templateName: "otp",
+  variables: { otp: "123456" },
+  previewOnly: true,
+  savePreview: true,
+});
+
+console.log("HTML saved at:", preview.previewPath);
+```
 
 ## Examples
 
-### 1. Simple Text Email
+### Simple Text Email
 
 ```javascript
 await emailService.sendEmail({
@@ -97,7 +284,7 @@ await emailService.sendEmail({
 });
 ```
 
-### 2. HTML + CSS Email
+### HTML + CSS Email
 
 ```javascript
 await emailService.sendEmail({
@@ -108,7 +295,7 @@ await emailService.sendEmail({
 });
 ```
 
-### 3. Using Templates
+### Using Templates
 
 ```javascript
 await emailService.sendEmail({
@@ -137,9 +324,7 @@ await emailService.sendEmail({
 ## Scheduling Emails
 
 ```javascript
-import { emailSchedule } from "@itsrighttime/broadcast";
-
-emailSchedule(new Date(Date.now() + 60000), {
+emailService.scheduleEmail(new Date(Date.now() + 60000), {
   to: "user@example.com",
   subject: "Reminder: Meeting in 1 hour",
   text: "Don't forget your meeting at 3 PM.",
@@ -152,16 +337,17 @@ emailSchedule(new Date(Date.now() + 60000), {
 try {
   await emailService.sendEmail({ css: "body { color: red; }" });
 } catch (error) {
-  console.error("Failed to send email:", error.message);
-  // Output: "CSS cannot be used without HTML content."
+  console.error(error.message);
+  // "CSS cannot be used without HTML content."
 }
 ```
 
 ## Conclusion
 
-`@itsrighttime/broadcast` provides a flexible, scalable, and robust solution for sending emails in Node.js:
+`@itsrighttime/broadcast` provides a flexible and production-ready email solution:
 
-- Supports **plain text, HTML+CSS, and template-based emails**
-- Handles **attachments, CC/BCC, priority, and read receipt**
-- Enables **email scheduling**
-- Validates **content and CSS usage** automatically
+- Plain text, HTML+CSS, and template-based emails
+- Attachments, CC/BCC, priority, and read receipts
+- Email scheduling
+- **Preview mode with HTML export**
+- Strong validation and ESM compatibility

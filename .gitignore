@@ -31,3 +31,5 @@ Thumbs.db
 .gitignore
 .npmrc
 logs/
+
+email-previews/

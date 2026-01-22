@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { getLocalizedTemplate } from "./helper/load-template.helper.js";
 import { createLoggerManager } from "@itsrighttime/utils";
 import { serviceName } from "../utils/serviceName.js";
+import { saveHtmlPreview } from "./helper/saveHtmlPreview.helper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -89,6 +90,8 @@ export class EmailService {
     templateName = null,
     variables = {},
     language = "en",
+    previewOnly = false,
+    savePreview = false,
   }) {
     try {
       // Check if CSS is provided without HTML
@@ -133,6 +136,38 @@ export class EmailService {
       } else if (html) {
         // HTML + CSS mode
         finalHtml = css ? juice.inlineContent(html, css) : html;
+      }
+
+      const previewResult = {
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to,
+        cc,
+        bcc,
+        subject,
+        text,
+        html: finalHtml,
+      };
+
+      let previewPath = null;
+
+      if (savePreview && finalHtml) {
+        previewPath = saveHtmlPreview({
+          html: finalHtml,
+          subject,
+        });
+      }
+
+      if (previewOnly) {
+        myLogger.info({
+          message: "Email preview generated (not sent)",
+          context: previewPath,
+        });
+
+        return {
+          preview: true,
+          previewPath,
+          email: previewResult,
+        };
       }
 
       const mailOptions = {

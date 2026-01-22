@@ -1,6 +1,6 @@
 # `@itsrighttime/broadcast` Examples
 
-This document demonstrates how to use the `EmailService` and template utilities for different email sending scenarios.
+This document demonstrates how to use the `EmailService` and template utilities for different email sending and preview scenarios.
 
 ## 1. Basic Text Email
 
@@ -11,20 +11,9 @@ const emailService = new EmailService({
   user: "no-reply@itsrighttime.group",
   pass: "your-password",
 });
-
 ```
 
 ```javascript
-import { EmailService } from "@itsrighttime/broadcast";
-
-const emailService = new EmailService({
-  host: "mail.itsrighttime.group",
-  port: 587,
-  secure: false, // TLS
-  user: "no-reply@itsrighttime.group",
-  pass: "your-password",
-});
-
 await emailService.sendEmail({
   to: "recipient@example.com",
   subject: "Hello!",
@@ -36,7 +25,6 @@ await emailService.sendEmail({
 
 ```javascript
 import { EmailService } from "@itsrighttime/broadcast";
-import fs from "fs";
 
 const emailService = new EmailService({
   user: "no-reply@itsrighttime.group",
@@ -50,7 +38,7 @@ await emailService.sendEmail({
   to: "recipient@example.com",
   subject: "HTML Email Example",
   html: htmlContent,
-  css: cssContent, // optional
+  css: cssContent,
 });
 ```
 
@@ -70,7 +58,8 @@ const emailService = new EmailService({
   pass: "your-password",
 });
 
-console.log(getTemplatesName()); // ["welcome", "otp", "reminder", ...]
+console.log(getTemplatesName());
+// ["welcome", "otp", "reminder", ...]
 
 const templateInfo = getEmailTemplateInfo("otp");
 console.log(templateInfo);
@@ -117,7 +106,7 @@ await emailService.sendEmail({
 ```javascript
 await emailService.sendEmail({
   to: "urgent@example.com",
-  subject: "Critical Issue Alert 🚨",
+  subject: "Critical Issue Alert ",
   text: "This is an urgent issue that requires immediate attention.",
   priority: "high",
   requestReadReceipt: true,
@@ -144,22 +133,92 @@ emailService.scheduleEmail(new Date(Date.now() + 60000), {
 ```javascript
 try {
   await emailService.sendEmail({
-    to: "invalid-email",
-    subject: "Test Email",
-    text: "This will fail.",
+    css: "body { color: red; }",
   });
 } catch (error) {
   console.error("Failed to send email:", error.message);
+  // CSS cannot be used without HTML content.
 }
 ```
 
-This `example.md` covers:
+## 9. Preview Email Output (No Send) 
 
-- Simple text email
-- HTML email with CSS
-- Using predefined templates
+Generate the final email output **without sending it**.
+
+```javascript
+const result = await emailService.sendEmail({
+  to: "test@example.com",
+  subject: "Welcome Email Preview",
+  templateName: "welcome",
+  variables: { name: "Danishan" },
+  previewOnly: true,
+});
+
+console.log(result.preview); // true
+console.log(result.email.html); // Rendered HTML
+```
+
+## 10. Preview & Save Email as HTML ⭐ NEW
+
+Save the rendered email output as a `.html` file at the **project root**.
+
+```javascript
+const result = await emailService.sendEmail({
+  to: "test@example.com",
+  subject: "OTP Email Preview",
+  templateName: "otp",
+  variables: { otp_code: "123456" },
+  previewOnly: true,
+  savePreview: true,
+});
+
+console.log(result.previewPath);
+// project-root/email-previews/otp-2026-01-22T10-30-00.html
+```
+
+## 11. Understanding Return Values ⭐ NEW
+
+### Normal Send
+
+```javascript
+const result = await emailService.sendEmail({
+  to: "user@example.com",
+  subject: "Welcome",
+  text: "Hello!",
+});
+
+console.log(result.messageId);
+```
+
+➡ Returns **Nodemailer `SendMailResult`**
+
+### Preview Mode
+
+```javascript
+const result = await emailService.sendEmail({
+  to: "user@example.com",
+  subject: "Preview Only",
+  text: "This will not be sent",
+  previewOnly: true,
+});
+
+console.log(result.email.text);
+```
+
+➡ Returns rendered email object (no SMTP call)
+
+## Summary
+
+This `examples.md` demonstrates:
+
+- Simple text emails
+- HTML emails with inline CSS
+- Template-based emails
 - Attachments
 - CC/BCC
-- High-priority and read receipts
+- Priority & read receipts
 - Scheduled emails
 - Error handling
+- **Email preview without sending**
+- **HTML export to project root**
+- **Clear return values**
