@@ -1,7 +1,11 @@
 import juice from "juice";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { translate } from "../../translations/email/email.translator.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const loadTemplate = (templateName, lang = "en", variables = {}) => {
   const templatePath = path.join(

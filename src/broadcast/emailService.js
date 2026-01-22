@@ -102,12 +102,12 @@ export class EmailService {
 
       if (contentCount === 0) {
         throw new Error(
-          "No email content provided. Provide either text, html+css, or templateName."
+          "No email content provided. Provide either text, html+css, or templateName.",
         );
       }
       if (contentCount > 1) {
         throw new Error(
-          "Only one email content type should be provided: text, html+css, or templateName."
+          "Only one email content type should be provided: text, html+css, or templateName.",
         );
       }
 
@@ -118,7 +118,7 @@ export class EmailService {
         const templateHtml = getLocalizedTemplate(
           templateName,
           variables,
-          language
+          language,
         );
         const cssPath = path.join(__dirname, "templates", "style.css");
         const templateCss = fs.existsSync(cssPath)
@@ -147,7 +147,9 @@ export class EmailService {
       };
 
       const result = await this.transporter.sendMail(mailOptions);
-      myLogger.info(`Email sent to ${to} | Message ID: ${result.messageId}`);
+      myLogger.info({
+        message: `Email sent to ${to} | Message ID: ${result.messageId}`,
+      });
       return result;
     } catch (error) {
       myLogger.error(`Email sending failed: ${error.message}`);

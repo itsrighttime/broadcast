@@ -1,15 +1,22 @@
 import Handlebars from "handlebars";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const getLocalizedTemplate = (templateName, variables, language) => {
   const locale = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "locales", `${language}.json`), "utf8")
+    fs.readFileSync(
+      path.join(__dirname, "locales", `${language}.json`),
+      "utf8",
+    ),
   );
   const templatePath = path.join(
     __dirname,
     "templates",
-    `${templateName}.html`
+    `${templateName}.html`,
   );
   const templateHtml = fs.readFileSync(templatePath, "utf8");
 
