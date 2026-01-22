@@ -136,6 +136,7 @@ export class EmailService {
       } else if (html) {
         // HTML + CSS mode
         finalHtml = css ? juice.inlineContent(html, css) : html;
+        finalHtml = renderTemplate(finalHtml, variables);
       }
 
       const previewResult = {
@@ -221,6 +222,12 @@ export class EmailService {
       await this.sendEmail(options);
     });
   }
+}
+
+function renderTemplate(template, variables) {
+  return template.replace(/{{(.*?)}}/g, (_, key) => {
+    return variables[key.trim()] ?? "";
+  });
 }
 
 /*
