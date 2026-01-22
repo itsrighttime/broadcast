@@ -6,30 +6,51 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const getLocalizedTemplate = (templateName, variables, language) => {
-  const locale = JSON.parse(
-    fs.readFileSync(
-      path.join(__dirname, "locales", `${language}.json`),
-      "utf8",
-    ),
+export const getLocalizedTemplate = (
+  templateName,
+  variables = {},
+  language = "en",
+) => {
+  const translationPath = path.join(
+    __dirname,
+    "../../translations/email",
+    `${language}.json`,
   );
+
   const templatePath = path.join(
     __dirname,
-    "templates",
+    "../templets",
     `${templateName}.html`,
   );
+
+  // Load files
+  const locale = JSON.parse(fs.readFileSync(translationPath, "utf8"));
   const templateHtml = fs.readFileSync(templatePath, "utf8");
 
-  const t = (key, data) => {
-    let text = locale[key] || key;
-    if (data) {
-      Object.keys(data).forEach((k) => {
-        text = text.replace(`{{${k}}}`, data[k]);
-      });
-    }
-    return text;
-  };
+  /**
+   * Translation helper
+   * Usage:
+   *   {{t "key"}}
+   *   {{t "key" name=name otp=otp}}
+   */
+  Handlebars.registerHelper("t", function (key, options) {
+    let text = locale[key] ?? key;
 
-  const compiled = Handlebars.compile(templateHtml);
-  return compiled({ ...variables, t });
+    // Merge root variables + hash variables
+    const context = {
+      ...options.data?.root,
+      ...options.hash,
+    };
+
+    // Replace {{var}} placeholders inside translations
+    Object.entries(context).forEach(([k, v]) => {
+      text = text.replace(new RegExp(`{{\\s*${k}\\s*}}`, "g"), v);
+    });
+
+    return new Handlebars.SafeString(text);
+  });
+
+  const template = Handlebars.compile(templateHtml);
+
+  return template(variables);
 };

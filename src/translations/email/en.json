@@ -1,7 +1,9 @@
 {
+  "greeting": "Greetings,",
   "otp_title": "Your OTP Code from letsSecure",
   "otp_heading": "Your One-Time Password",
   "otp_message": "Use the OTP below to complete your login or verification process.",
+  "product_of": "letsSecure",
   "otp_code": "Your OTP Code",
   "otp_expiry": "This code will expire in 10 minutes.",
 

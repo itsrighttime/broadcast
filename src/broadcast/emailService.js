@@ -124,7 +124,8 @@ export class EmailService {
           variables,
           language,
         );
-        const cssPath = path.join(__dirname, "templates", "style.css");
+
+        const cssPath = path.join(__dirname, "templets", "style.css");
         const templateCss = fs.existsSync(cssPath)
           ? fs.readFileSync(cssPath, "utf8")
           : "";
@@ -151,6 +152,7 @@ export class EmailService {
       };
 
       const result = await this.transporter.sendMail(mailOptions);
+
       myLogger.info({
         message: `Email sent to ${to} | Message ID: ${result.messageId}`,
       });

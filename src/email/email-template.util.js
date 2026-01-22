@@ -2,9 +2,9 @@ import { BadRequestError } from "@itsrighttime/utils";
 
 const emailTemplates = {
   welcome: ["name", "userId", "password_link"],
-  otp: ["name", "otp_code"],
+  otp: ["name", "otp"],
   reminder: ["name", "event", "event_date", "reminder_link"],
-  promotion: ["name", "discount_code", "expiry_date", "promotion_link"],
+  promotion: ["name", "promotion_link"],
   "password-reset": ["name", "reset_link"],
   "account-verification": ["name", "verification_link"],
   "subscription-update": ["name", "subscription_status", "update_link"],
